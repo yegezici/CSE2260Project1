@@ -1,0 +1,72 @@
+--- bu ana ödev dosyası
+
+type Board = [Int]
+type Player = Int
+type Position = Int
+
+
+updateElementAtIndex :: Int -> a -> [a] -> [a]
+updateElementAtIndex 0 newValue (_:xs) = newValue : xs  -- Update the first element
+updateElementAtIndex n newValue (x:xs) = x : updateElementAtIndex (n - 1) newValue xs
+
+main :: IO ()
+main =
+    let list = [0,4,4,4,4,4,4,4,4,4,4,4,4,0]
+        
+    in do
+        putStrLn "Welcome to Mancala!"
+        playGame list 0
+
+
+playGame :: Board -> Player -> IO ()
+playGame board player = do
+ --  printBoard board
+    if gameOver board
+        then endGame board
+        else do
+         putStrLn "Which player is gonna play? (1 for Player1, 2 for Player2)"
+         player <- readLn :: IO Int
+         putStrLn $ "Player " ++ show player ++ "'s turn"
+         hole <- readLn :: IO Int
+         
+
+         
+
+incrementElements :: Board -> Position -> Board
+incrementElements xs 0 = xs  -- Base case: reached the specified index, stop incrementing
+incrementElements (x:xs) n = (x + 1) : incrementElements xs (n - 1)
+
+gameOver :: Board -> Bool
+gameOver board = all (== 0) (take 6 board) || all (== 0) (drop 7 board)
+
+-- Function to end the game and determine the winner
+endGame :: Board -> IO ()
+endGame board = do
+    let player1Score = sum (take 6 board)
+        player2Score = sum (drop 7 board)
+    putStrLn $ "Player 1 score: " ++ show player1Score
+    putStrLn $ "Player 2 score: " ++ show player2Score
+    if player1Score > player2Score
+        then putStrLn "Player 1 wins!"
+        else if player1Score < player2Score
+            then putStrLn "Player 2 wins!"
+            else putStrLn "It's a tie!"
+
+printBoard :: Board -> IO ()
+printBoard xs = do
+    putStrLn $ "| " ++ show (xs !! 0) ++ " | " ++ show (xs !! 1) ++ " | " ++ show (xs !! 2) ++ " | " ++
+                show (xs !! 3) ++ " | " ++ show (xs !! 4) ++ " | " ++ show (xs !! 5) ++ " | " ++
+                show (xs !! 6) ++ " | "
+    putStrLn $ "| " ++ show (xs !! 7) ++ " | " ++ show (xs !! 8) ++ " | " ++ show (xs !! 9) ++ " | " ++
+                show (xs !! 10) ++ " | " ++ show (xs !! 11) ++ " | " ++ show (xs !! 12) ++ " | " ++
+                show (xs !! 13) ++ " | "
+
+
+
+moveStones :: Board -> Player -> Position -> Board
+moveStones board player position =
+    let 
+        index = if player == 2 then 7 - position else position + 7
+        newBoard = incrementElements board index 
+      --  newBoard1 = updateElementAtIndex (position-1) 1 newBoard
+    in newBoard 
